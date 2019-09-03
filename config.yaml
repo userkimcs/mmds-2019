@@ -1,0 +1,9 @@
+redis-master:
+  host: 127.0.0.1
+  port: 6969
+  db: 0
+
+mongo-master:
+  host: 127.0.0.1
+  port: 1234
+
