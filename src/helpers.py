@@ -2,6 +2,8 @@ import hashlib
 from bs4 import BeautifulSoup
 import urllib.parse
 import requests
+import re
+import urllib.parse
 
 
 def to_sha1(text):
@@ -24,3 +26,44 @@ def get_absolute_links(url):
 
     return all_links
 
+
+def normalize_url(url):
+    """
+    Normalize url
+    1. Remove default port: web:80.com => web.com
+    2. Add slash: web.com => web.com/
+    3. Remove fragment: web.com/content.html#link => web.com/content.html
+    4. Remove default name: web.com/index.html => web.com
+    5. Decode: web.com/%7Ekim => web.com/~kim
+    6. Encode space: web.com/tan kim => web.com/tan%20kim
+    7. Remove www.
+    To lower: WEB.COM => web.com
+    :return: normalized url as string
+    """
+    url = url.lower()
+    # return urllib.urlunparse(urlparse(normurl))
+    # 1. Remove default port
+    url = re.sub(r'\:\d{1,6}\/', '', url)
+
+    # 3. Remove fragment
+    url = re.sub(r'#.+', '', url)
+
+    # 4. Remove default name
+    url = re.sub(r'\/index\.html', '', url)
+
+    # 5. Decode: %xx
+    url = urllib.parse.unquote(url)
+
+    # 6. Encode spaces
+    if ' ' in url.__str__():
+        # normurl = urllib.parse.quote(normurl, safe= "_.-~/:@")
+        url = re.sub(r'\s', '%20', url)
+
+    # 2. Add slash
+    #if normurl[-1] != '/':
+    #    normurl += '/'
+
+    # if "www\." in normurl:
+    #     normurl = re.sub(r'www\.', '', normurl)
+
+    return url
