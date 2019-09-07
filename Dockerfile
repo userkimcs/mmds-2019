@@ -27,6 +27,9 @@ RUN apt-get install git -y
 
 RUN rm -rf /var/lib/apt/lists/*
 
+RUN git clone https://github.com/userkimcs/mmds-2019.git
+
+RUN cd /mmds-2019 && pip3 install -r requirements.txt
 
 WORKDIR /mmds-2019
 
