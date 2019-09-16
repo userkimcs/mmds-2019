@@ -1,36 +1,17 @@
-FROM ubuntu:18.04
-
-ENV LANG C.UTF-8
-
-# set timezone
-RUN apt-get update && apt-get install -y tzdata
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends tk-dev && \
-	apt-get install -y --no-install-recommends apt-utils
-
-RUN apt-get clean && apt-get update && apt-get install -y locales
-RUN locale-gen en_US.UTF-8
-
-# set locale
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-
-# install python
-
-RUN apt-get update
-RUN apt-get install python3-pip -y
-RUN apt-get install git -y
+FROM ubuntu:18.10
 
 
-
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get install -y python3-pip python3-dev \
+  && cd /usr/local/bin \
+  && ln -s /usr/bin/python3 python \
+  && pip3 install --upgrade pip \
+  && apt-get install git -y
 
 RUN git clone https://github.com/userkimcs/mmds-2019.git
 
-RUN cd /mmds-2019 && pip3 install -r requirements.txt
-
 WORKDIR /mmds-2019
 
-ENTRYPOINT "bash run.sh"
+# start with entrypoint
+# --entrypoint=script.sh
+#ENTRYPOINT bash $start_script
