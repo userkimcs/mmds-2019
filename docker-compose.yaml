@@ -14,7 +14,7 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 192.168.2.183
+      KAFKA_ADVERTISED_HOST_NAME: 0.0.0.0
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - data:/kafka
@@ -22,9 +22,7 @@ services:
       - net-01
 
   redis:
-    image: redis:4.0.5-alpine
-    command: ["redis-server"]
-    hostname: redis
+    build: redis
     networks:
       - net-01
     volumes:
