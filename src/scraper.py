@@ -1,33 +1,34 @@
-import json
 import kafka
-import argparse
 from newspaper import Article
-import pymongo
+from arguments import configs
+from helpers import DatabaseService, DatabaseModel, get_keywords, insert_pipeline
+import nltk
+
+
+def download_nltk():
+    nltk.download('words')
+    nltk.download('maxent_ne_chunker')
+    nltk.download('averaged_perceptron_tagger')
+    nltk.download('punkt')
 
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--kafka_host", required=False, default='127.0.0.1')
-    parser.add_argument("--kafka_port", required=False, type=int, default=9092)
-    parser.add_argument("--kafka_topic", required=False, default='default')
-    parser.add_argument("--mongodb_host", required=False, default='127.0.0.1')
-    parser.add_argument("--mongodb_port", required=False, type=int, default=27017)
-    parser.add_argument("--mongodb", required=False, default='default')
-    parser.add_argument("--mongodb_collection", required=False, default='document')
+    download_nltk()
 
-    args = parser.parse_args()
+    consumer = kafka.KafkaConsumer(configs.kafka_link_topic,
+                                   bootstrap_servers=configs.kafka_host,
+                                   group_id=configs.kafka_default_group)
 
-    consumer = kafka.KafkaConsumer(bootstrap_servers='{}:{}'.format(args.kafka_host, args.kafka_port))
+    stream_producer = kafka.KafkaProducer(bootstrap_servers=configs.kafka_host)
 
-    consumer.subscribe([args.kafka_topic])
-
-    mongo_client = pymongo.MongoClient(host=args.mongodb_host, port=args.mongodb_port)
-
-    mongodb = mongo_client[args.mongodb]
+    # connect pg
+    pg = DatabaseService(host=configs.pg_host, user=configs.pg_user,
+                         password=configs.pg_password, port=configs.pg_port,
+                         database=configs.pg_db)
 
     for message in consumer:
-        url = message.value.decode()
+        url = message.value.decode("utf-8")
 
         article = Article(url)
         article.download()
@@ -39,6 +40,15 @@ if __name__ == "__main__":
         article_dict['authors'] = article.authors
         article_dict['date'] = article.publish_date
 
+        keywords = get_keywords(article.text)
+        keywords.extend(get_keywords(article.title))
+
+        model = DatabaseModel()
+        model.data = article_dict
         # insert
-        mongodb[args.mongodb_collection].insert_one(article_dict)
+        pg.insert_one(model)
+
+        # send to kk
+        insert_pipeline(stream_producer, keywords)
+
 
