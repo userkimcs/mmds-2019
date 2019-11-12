@@ -9,6 +9,6 @@ RUN apt-get update \
 
 COPY src/ .
 
-RUN cd /app && pip3 install -r requirements.txt
+RUN cd /src && pip3 install -r requirements.txt
 
-WORKDIR /mmds-2019
+WORKDIR /src

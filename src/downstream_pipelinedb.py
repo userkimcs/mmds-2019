@@ -1,5 +1,4 @@
 import kafka
-import json
 import time
 import logger
 from arguments import configs

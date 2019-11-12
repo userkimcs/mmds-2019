@@ -12,7 +12,6 @@ from sqlalchemy.sql import func
 from sqlalchemy.dialects.postgresql import JSON
 import logger
 from arguments import configs
-from kafka import KafkaProducer
 
 
 class DatabaseService:

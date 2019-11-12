@@ -69,7 +69,7 @@ if [[ -n "$PORT_COMMAND" ]]; then
     IFS=$'\n'
     for VAR in $(env); do
         if [[ $VAR =~ ^KAFKA_ && "$VAR" =~ "_{PORT_COMMAND}" ]]; then
-      eval "export ${VAR//_\{PORT_COMMAND\}/$PORT_VALUE}"
+	    eval "export ${VAR//_\{PORT_COMMAND\}/$PORT_VALUE}"
         fi
     done
     IFS=$ORIG_IFS
