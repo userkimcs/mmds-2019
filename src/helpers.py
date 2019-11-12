@@ -76,12 +76,6 @@ class DatabaseModel(DatabaseService.Base):
     created_time = sqlalchemy.Column(sqlalchemy.DateTime, default=func.now())
 
 
-def insert_pipeline(kafka_producer: KafkaProducer, keywords):
-    for keyword in keywords:
-        logger.log.info("Send {}".format(keyword))
-        kafka_producer.send(configs.kafka_keyword_topic, keyword.encode())
-
-
 def to_sha1(text):
     sha = hashlib.sha1(text.encode('utf-8'))
     return sha.hexdigest()

@@ -1,5 +1,4 @@
 import kafka
-import argparse
 import time
 import redis
 
@@ -28,6 +27,6 @@ if __name__ == "__main__":
                 if not exist_urls.exists(encoded_url):
                     # add new url to redis and add original to kafka producer
                     exist_urls.set(encoded_url, 0)
-                    producer.send(configs.kafka_link_topic, url.encode())
+                    producer.send("links", url.encode())
 
-        time.sleep(120)
+        time.sleep(10)
